@@ -146,6 +146,7 @@ function ProjectsPage() {
                 career={p.career}
                 completed={completedIds.has(p.id)}
                 onStart={() => handleComplete(p)}
+                onClick={() => setSelectedProject(p)}
               />
             ))}
           </div>
