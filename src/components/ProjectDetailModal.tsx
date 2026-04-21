@@ -8,6 +8,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { PointsBadge } from "@/components/PointsBadge";
 import { Clock, CheckCircle2, Sparkles, ListChecks, Target } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { projectStepsMap } from "@/data/projectStepsData";
+import { Button } from "@/components/ui/button";
+import { PointsBadge } from "@/components/PointsBadge";
+import { Clock, CheckCircle2, Sparkles, ListChecks, Target } from "lucide-react";
 
 interface Project {
   id: string;
@@ -224,6 +229,12 @@ export function ProjectDetailModal({ project, open, onOpenChange, completed, onC
             <div className="flex items-center gap-2 text-lime-foreground font-semibold text-sm pt-2">
               <CheckCircle2 className="w-5 h-5" /> You've completed this project!
             </div>
+          ) : projectStepsMap[project.title] ? (
+            <Link to="/projects/$projectId" params={{ projectId: project.id }} onClick={() => onOpenChange(false)}>
+              <Button variant="lavender" className="w-full">
+                Start Step-by-Step Guide — Earn {project.points} pts
+              </Button>
+            </Link>
           ) : (
             <Button
               variant="lavender"
