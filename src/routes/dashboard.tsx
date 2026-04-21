@@ -4,6 +4,7 @@ import { PointsBadge } from "@/components/PointsBadge";
 import { StatCard } from "@/components/StatCard";
 import { ProjectCard } from "@/components/ProjectCard";
 import { CareerPathCard } from "@/components/CareerPathCard";
+import { ProjectDetailModal } from "@/components/ProjectDetailModal";
 import { Target, Trophy, Flame, BookOpen } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
