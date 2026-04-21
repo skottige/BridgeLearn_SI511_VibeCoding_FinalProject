@@ -139,6 +139,7 @@ function ProjectsPage() {
             {filtered.map((p) => (
               <ProjectCard
                 key={p.id}
+                id={p.id}
                 title={p.title}
                 description={p.description}
                 points={p.points}
