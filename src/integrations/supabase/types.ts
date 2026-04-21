@@ -14,7 +14,240 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      career_pathways: {
+        Row: {
+          avg_salary: string
+          category: string
+          color: string
+          created_at: string
+          description: string
+          icon: string
+          id: string
+          project_count: number
+          title: string
+        }
+        Insert: {
+          avg_salary?: string
+          category?: string
+          color?: string
+          created_at?: string
+          description?: string
+          icon?: string
+          id?: string
+          project_count?: number
+          title: string
+        }
+        Update: {
+          avg_salary?: string
+          category?: string
+          color?: string
+          created_at?: string
+          description?: string
+          icon?: string
+          id?: string
+          project_count?: number
+          title?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          display_name: string
+          grade: string | null
+          id: string
+          last_active_date: string | null
+          level: number
+          school: string | null
+          streak_days: number
+          total_points: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string
+          grade?: string | null
+          id?: string
+          last_active_date?: string | null
+          level?: number
+          school?: string | null
+          streak_days?: number
+          total_points?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string
+          grade?: string | null
+          id?: string
+          last_active_date?: string | null
+          level?: number
+          school?: string | null
+          streak_days?: number
+          total_points?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      projects: {
+        Row: {
+          career: string
+          career_pathway_id: string | null
+          created_at: string
+          description: string
+          difficulty: string
+          duration: string
+          id: string
+          points: number
+          title: string
+        }
+        Insert: {
+          career?: string
+          career_pathway_id?: string | null
+          created_at?: string
+          description?: string
+          difficulty?: string
+          duration?: string
+          id?: string
+          points?: number
+          title: string
+        }
+        Update: {
+          career?: string
+          career_pathway_id?: string | null
+          created_at?: string
+          description?: string
+          difficulty?: string
+          duration?: string
+          id?: string
+          points?: number
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "projects_career_pathway_id_fkey"
+            columns: ["career_pathway_id"]
+            isOneToOne: false
+            referencedRelation: "career_pathways"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rewards: {
+        Row: {
+          cost: number
+          created_at: string
+          description: string
+          icon: string
+          id: string
+          title: string
+        }
+        Insert: {
+          cost?: number
+          created_at?: string
+          description?: string
+          icon?: string
+          id?: string
+          title: string
+        }
+        Update: {
+          cost?: number
+          created_at?: string
+          description?: string
+          icon?: string
+          id?: string
+          title?: string
+        }
+        Relationships: []
+      }
+      user_interests: {
+        Row: {
+          created_at: string
+          id: string
+          interest: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          interest: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          interest?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_projects: {
+        Row: {
+          completed_at: string
+          id: string
+          points_earned: number
+          project_id: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string
+          id?: string
+          points_earned?: number
+          project_id: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string
+          id?: string
+          points_earned?: number
+          project_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_projects_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_rewards: {
+        Row: {
+          claimed_at: string
+          id: string
+          reward_id: string
+          user_id: string
+        }
+        Insert: {
+          claimed_at?: string
+          id?: string
+          reward_id: string
+          user_id: string
+        }
+        Update: {
+          claimed_at?: string
+          id?: string
+          reward_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_rewards_reward_id_fkey"
+            columns: ["reward_id"]
+            isOneToOne: false
+            referencedRelation: "rewards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
