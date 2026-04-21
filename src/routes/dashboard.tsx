@@ -163,6 +163,7 @@ function DashboardPage() {
                 career={p.career}
                 completed={completedIds.has(p.id)}
                 onStart={() => handleCompleteProject(p.id, p.points)}
+                onClick={() => setSelectedProject(p)}
               />
             ))}
           </div>
@@ -188,6 +189,14 @@ function DashboardPage() {
             ))}
           </div>
         </section>
+
+        <ProjectDetailModal
+          project={selectedProject}
+          open={!!selectedProject}
+          onOpenChange={(open) => { if (!open) setSelectedProject(null); }}
+          completed={selectedProject ? completedIds.has(selectedProject.id) : false}
+          onComplete={() => { if (selectedProject) handleCompleteProject(selectedProject.id, selectedProject.points); }}
+        />
       </div>
     </div>
   );
