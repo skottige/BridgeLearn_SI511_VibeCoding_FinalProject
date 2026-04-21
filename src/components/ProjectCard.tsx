@@ -1,8 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { PointsBadge } from "@/components/PointsBadge";
 import { Clock, CheckCircle2 } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { projectStepsMap } from "@/data/projectStepsData";
 
 interface ProjectCardProps {
+  id?: string;
   title: string;
   description: string;
   points: number;
@@ -20,7 +23,9 @@ const diffColors: Record<string, string> = {
   Advanced: "bg-coral/20 text-coral-foreground",
 };
 
-export function ProjectCard({ title, description, points, duration, difficulty, career, completed, onStart, onClick }: ProjectCardProps) {
+export function ProjectCard({ id, title, description, points, duration, difficulty, career, completed, onStart, onClick }: ProjectCardProps) {
+  const hasSteps = !!projectStepsMap[title];
+
   return (
     <div className="rounded-2xl border bg-card p-5 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] transition-all duration-300 flex flex-col cursor-pointer" onClick={onClick}>
       <div className="flex items-start justify-between mb-3">
@@ -39,6 +44,12 @@ export function ProjectCard({ title, description, points, duration, difficulty, 
         <div className="flex items-center gap-2 text-lime-foreground font-semibold text-sm">
           <CheckCircle2 className="w-4 h-4" /> Completed
         </div>
+      ) : hasSteps && id ? (
+        <Link to="/projects/$projectId" params={{ projectId: id }} onClick={(e) => e.stopPropagation()}>
+          <Button variant="lavender" size="sm" className="w-full">
+            Start Project
+          </Button>
+        </Link>
       ) : (
         <Button variant="lavender" size="sm" onClick={(e) => { e.stopPropagation(); onStart?.(); }} className="w-full">
           Start Project
