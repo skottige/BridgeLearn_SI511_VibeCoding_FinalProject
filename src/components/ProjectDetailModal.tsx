@@ -10,9 +10,6 @@ import { PointsBadge } from "@/components/PointsBadge";
 import { Clock, CheckCircle2, Sparkles, ListChecks, Target } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { projectStepsMap } from "@/data/projectStepsData";
-import { Button } from "@/components/ui/button";
-import { PointsBadge } from "@/components/PointsBadge";
-import { Clock, CheckCircle2, Sparkles, ListChecks, Target } from "lucide-react";
 
 interface Project {
   id: string;
