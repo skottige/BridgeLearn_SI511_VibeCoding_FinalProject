@@ -1,8 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Header } from "@/components/Header";
 import { ProjectCard } from "@/components/ProjectCard";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Search } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/projects")({
   head: () => ({
@@ -14,28 +17,78 @@ export const Route = createFileRoute("/projects")({
   component: ProjectsPage,
 });
 
-const allProjects = [
-  { title: "Build a Personal Website", description: "Create a portfolio site using HTML & CSS basics", points: 150, duration: "45 min", difficulty: "Beginner" as const, career: "Web Dev", completed: true },
-  { title: "Design a Logo", description: "Create a brand logo using free online design tools", points: 100, duration: "30 min", difficulty: "Beginner" as const, career: "Design", completed: true },
-  { title: "Analyze Survey Data", description: "Use spreadsheets to find patterns in real survey data", points: 200, duration: "1 hr", difficulty: "Intermediate" as const, career: "Data Science" },
-  { title: "Write a Press Release", description: "Draft a professional press release for a fictional company", points: 120, duration: "40 min", difficulty: "Beginner" as const, career: "Marketing" },
-  { title: "Build a Simple App", description: "Create a basic calculator app with JavaScript", points: 250, duration: "1.5 hrs", difficulty: "Intermediate" as const, career: "Web Dev" },
-  { title: "3D Print a Prototype", description: "Design a 3D model and learn about rapid prototyping", points: 300, duration: "2 hrs", difficulty: "Advanced" as const, career: "Engineering" },
-  { title: "Create a Budget Plan", description: "Build a personal budget spreadsheet with charts", points: 150, duration: "45 min", difficulty: "Beginner" as const, career: "Finance" },
-  { title: "Social Media Campaign", description: "Plan and design a social media campaign for a cause", points: 180, duration: "1 hr", difficulty: "Intermediate" as const, career: "Marketing" },
-  { title: "Lab Report Analysis", description: "Analyze a biology lab report and present findings", points: 200, duration: "1 hr", difficulty: "Intermediate" as const, career: "Science" },
-  { title: "Video Storyboard", description: "Create a storyboard for a short documentary", points: 160, duration: "50 min", difficulty: "Beginner" as const, career: "Media" },
-  { title: "Machine Learning Basics", description: "Train a simple ML model to classify images", points: 350, duration: "2 hrs", difficulty: "Advanced" as const, career: "Data Science" },
-  { title: "Design a Patient Form", description: "Create a digital patient intake form for a clinic", points: 130, duration: "35 min", difficulty: "Beginner" as const, career: "Healthcare" },
-];
+interface Project {
+  id: string;
+  title: string;
+  description: string;
+  points: number;
+  duration: string;
+  difficulty: string;
+  career: string;
+}
 
 const difficulties = ["All", "Beginner", "Intermediate", "Advanced"];
 
 function ProjectsPage() {
+  const { user } = useAuth();
   const [search, setSearch] = useState("");
   const [diff, setDiff] = useState("All");
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [completedIds, setCompletedIds] = useState<Set<string>>(new Set());
+  const [loading, setLoading] = useState(true);
 
-  const filtered = allProjects.filter((p) => {
+  useEffect(() => {
+    const load = async () => {
+      const { data } = await supabase.from("projects").select("*");
+      if (data) setProjects(data);
+
+      if (user) {
+        const { data: completed } = await supabase
+          .from("user_projects")
+          .select("project_id")
+          .eq("user_id", user.id);
+        if (completed) setCompletedIds(new Set(completed.map((r) => r.project_id)));
+      }
+      setLoading(false);
+    };
+    load();
+  }, [user]);
+
+  const handleComplete = async (project: Project) => {
+    if (!user) {
+      toast.error("Please sign in to complete projects");
+      return;
+    }
+    if (completedIds.has(project.id)) return;
+
+    const { error } = await supabase.from("user_projects").insert({
+      user_id: user.id,
+      project_id: project.id,
+      points_earned: project.points,
+    });
+    if (error) {
+      toast.error("Failed to complete project");
+      return;
+    }
+
+    // Update points
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("total_points")
+      .eq("user_id", user.id)
+      .single();
+    if (profile) {
+      await supabase
+        .from("profiles")
+        .update({ total_points: profile.total_points + project.points })
+        .eq("user_id", user.id);
+    }
+
+    setCompletedIds((prev) => new Set(prev).add(project.id));
+    toast.success(`+${project.points} points! 🎉 "${project.title}" completed!`);
+  };
+
+  const filtered = projects.filter((p) => {
     const matchSearch = p.title.toLowerCase().includes(search.toLowerCase());
     const matchDiff = diff === "All" || p.difficulty === diff;
     return matchSearch && matchDiff;
@@ -74,13 +127,31 @@ function ProjectsPage() {
           </div>
         </div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filtered.map((p) => (
-            <ProjectCard key={p.title} {...p} />
-          ))}
-        </div>
+        {loading ? (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div key={i} className="rounded-2xl border bg-card p-5 h-48 animate-pulse" />
+            ))}
+          </div>
+        ) : (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filtered.map((p) => (
+              <ProjectCard
+                key={p.id}
+                title={p.title}
+                description={p.description}
+                points={p.points}
+                duration={p.duration}
+                difficulty={p.difficulty as "Beginner" | "Intermediate" | "Advanced"}
+                career={p.career}
+                completed={completedIds.has(p.id)}
+                onStart={() => handleComplete(p)}
+              />
+            ))}
+          </div>
+        )}
 
-        {filtered.length === 0 && (
+        {!loading && filtered.length === 0 && (
           <p className="text-center text-muted-foreground py-12">No projects found. Try adjusting your filters.</p>
         )}
       </div>

@@ -1,8 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Header } from "@/components/Header";
 import { CareerPathCard } from "@/components/CareerPathCard";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Search } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/careers")({
   head: () => ({
@@ -14,26 +15,33 @@ export const Route = createFileRoute("/careers")({
   component: CareersPage,
 });
 
-const careers = [
-  { title: "Software Developer", description: "Build apps, websites, and systems used by millions of people", icon: "💻", color: "lavender", projectCount: 24, avgSalary: "$95k", category: "Technology" },
-  { title: "UX Designer", description: "Design intuitive and beautiful digital experiences", icon: "🎨", color: "coral", projectCount: 18, avgSalary: "$85k", category: "Arts & Design" },
-  { title: "Data Scientist", description: "Analyze data to uncover insights and make predictions", icon: "📊", color: "sky", projectCount: 15, avgSalary: "$105k", category: "Technology" },
-  { title: "Nurse Practitioner", description: "Provide advanced healthcare to patients in need", icon: "🩺", color: "coral", projectCount: 12, avgSalary: "$75k", category: "Healthcare" },
-  { title: "Environmental Scientist", description: "Research and develop solutions for environmental challenges", icon: "🌍", color: "lime", projectCount: 10, avgSalary: "$70k", category: "Science" },
-  { title: "Marketing Manager", description: "Create strategies to promote products and grow brands", icon: "📣", color: "tangerine", projectCount: 14, avgSalary: "$80k", category: "Business" },
-  { title: "Mechanical Engineer", description: "Design and build machines, engines, and structures", icon: "⚙️", color: "sky", projectCount: 16, avgSalary: "$90k", category: "Engineering" },
-  { title: "Graphic Designer", description: "Create visual content for print and digital media", icon: "✏️", color: "sunshine", projectCount: 20, avgSalary: "$60k", category: "Arts & Design" },
-  { title: "Financial Analyst", description: "Help businesses make smart investment decisions", icon: "💰", color: "lime", projectCount: 11, avgSalary: "$85k", category: "Business" },
-  { title: "Biomedical Researcher", description: "Advance medical knowledge through scientific research", icon: "🔬", color: "lavender", projectCount: 8, avgSalary: "$80k", category: "Science" },
-  { title: "Film Producer", description: "Manage and oversee the creation of films and media", icon: "🎬", color: "coral", projectCount: 9, avgSalary: "$75k", category: "Media" },
-  { title: "Social Worker", description: "Support individuals and communities facing challenges", icon: "🤝", color: "sunshine", projectCount: 7, avgSalary: "$55k", category: "Social Work" },
-];
-
-const categories = ["All", ...Array.from(new Set(careers.map((c) => c.category)))];
+interface Career {
+  id: string;
+  title: string;
+  description: string;
+  icon: string;
+  color: string;
+  project_count: number;
+  avg_salary: string;
+  category: string;
+}
 
 function CareersPage() {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
+  const [careers, setCareers] = useState<Career[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const load = async () => {
+      const { data } = await supabase.from("career_pathways").select("*");
+      if (data) setCareers(data);
+      setLoading(false);
+    };
+    load();
+  }, []);
+
+  const categories = ["All", ...Array.from(new Set(careers.map((c) => c.category).filter(Boolean)))];
 
   const filtered = careers.filter((c) => {
     const matchSearch = c.title.toLowerCase().includes(search.toLowerCase());
@@ -74,13 +82,29 @@ function CareersPage() {
           </div>
         </div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filtered.map((c) => (
-            <CareerPathCard key={c.title} {...c} />
-          ))}
-        </div>
+        {loading ? (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div key={i} className="rounded-2xl border bg-card p-6 h-56 animate-pulse" />
+            ))}
+          </div>
+        ) : (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filtered.map((c) => (
+              <CareerPathCard
+                key={c.id}
+                title={c.title}
+                description={c.description}
+                icon={c.icon}
+                color={c.color}
+                projectCount={c.project_count}
+                avgSalary={c.avg_salary}
+              />
+            ))}
+          </div>
+        )}
 
-        {filtered.length === 0 && (
+        {!loading && filtered.length === 0 && (
           <p className="text-center text-muted-foreground py-12">No careers found. Try a different search.</p>
         )}
       </div>
