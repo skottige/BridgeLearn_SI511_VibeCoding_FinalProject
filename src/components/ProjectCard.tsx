@@ -11,6 +11,7 @@ interface ProjectCardProps {
   career: string;
   completed?: boolean;
   onStart?: () => void;
+  onClick?: () => void;
 }
 
 const diffColors: Record<string, string> = {
@@ -19,9 +20,9 @@ const diffColors: Record<string, string> = {
   Advanced: "bg-coral/20 text-coral-foreground",
 };
 
-export function ProjectCard({ title, description, points, duration, difficulty, career, completed, onStart }: ProjectCardProps) {
+export function ProjectCard({ title, description, points, duration, difficulty, career, completed, onStart, onClick }: ProjectCardProps) {
   return (
-    <div className="rounded-2xl border bg-card p-5 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] transition-all duration-300 flex flex-col">
+    <div className="rounded-2xl border bg-card p-5 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] transition-all duration-300 flex flex-col cursor-pointer" onClick={onClick}>
       <div className="flex items-start justify-between mb-3">
         <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${diffColors[difficulty]}`}>
           {difficulty}
@@ -39,7 +40,7 @@ export function ProjectCard({ title, description, points, duration, difficulty, 
           <CheckCircle2 className="w-4 h-4" /> Completed
         </div>
       ) : (
-        <Button variant="lavender" size="sm" onClick={onStart} className="w-full">
+        <Button variant="lavender" size="sm" onClick={(e) => { e.stopPropagation(); onStart?.(); }} className="w-full">
           Start Project
         </Button>
       )}

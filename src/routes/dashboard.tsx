@@ -4,6 +4,7 @@ import { PointsBadge } from "@/components/PointsBadge";
 import { StatCard } from "@/components/StatCard";
 import { ProjectCard } from "@/components/ProjectCard";
 import { CareerPathCard } from "@/components/CareerPathCard";
+import { ProjectDetailModal } from "@/components/ProjectDetailModal";
 import { Target, Trophy, Flame, BookOpen } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -56,6 +57,7 @@ function DashboardPage() {
   const [completedCount, setCompletedCount] = useState(0);
   const [rewardsCount, setRewardsCount] = useState(0);
   const [careersExplored, setCareersExplored] = useState(0);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -161,6 +163,7 @@ function DashboardPage() {
                 career={p.career}
                 completed={completedIds.has(p.id)}
                 onStart={() => handleCompleteProject(p.id, p.points)}
+                onClick={() => setSelectedProject(p)}
               />
             ))}
           </div>
@@ -186,6 +189,14 @@ function DashboardPage() {
             ))}
           </div>
         </section>
+
+        <ProjectDetailModal
+          project={selectedProject}
+          open={!!selectedProject}
+          onOpenChange={(open) => { if (!open) setSelectedProject(null); }}
+          completed={selectedProject ? completedIds.has(selectedProject.id) : false}
+          onComplete={() => { if (selectedProject) handleCompleteProject(selectedProject.id, selectedProject.points); }}
+        />
       </div>
     </div>
   );
