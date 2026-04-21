@@ -4,6 +4,9 @@ import { PointsBadge } from "@/components/PointsBadge";
 import { StatCard } from "@/components/StatCard";
 import { Trophy, Flame, Target, BookOpen, Star, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+import { useEffect, useState } from "react";
 
 export const Route = createFileRoute("/profile")({
   head: () => ({
@@ -15,27 +18,69 @@ export const Route = createFileRoute("/profile")({
   component: ProfilePage,
 });
 
-const badges = [
-  { icon: "🚀", label: "First Project", earned: true },
-  { icon: "🔥", label: "5-Day Streak", earned: true },
-  { icon: "⭐", label: "VIP Explorer", earned: true },
-  { icon: "🏆", label: "10 Projects", earned: false },
-  { icon: "💎", label: "Career Master", earned: false },
-  { icon: "🎓", label: "Scholar", earned: false },
-];
+interface Profile {
+  display_name: string;
+  school: string | null;
+  grade: string | null;
+  total_points: number;
+  streak_days: number;
+  level: number;
+}
 
-const completedProjects = [
-  { title: "Build a Personal Website", career: "Web Dev", points: 150 },
-  { title: "Design a Logo", career: "Design", points: 100 },
-  { title: "Write a Press Release", career: "Marketing", points: 120 },
-  { title: "Create a Budget Plan", career: "Finance", points: 150 },
-  { title: "Design a Patient Form", career: "Healthcare", points: 130 },
-  { title: "Video Storyboard", career: "Media", points: 160 },
-  { title: "Analyze Survey Data", career: "Data Science", points: 200 },
-  { title: "Social Media Campaign", career: "Marketing", points: 180 },
+interface CompletedProject {
+  points_earned: number;
+  project: { title: string; career: string } | null;
+}
+
+const badges = [
+  { icon: "🚀", label: "First Project", threshold: 1 },
+  { icon: "🔥", label: "5-Day Streak", threshold: 5 },
+  { icon: "⭐", label: "VIP Explorer", threshold: 500 },
+  { icon: "🏆", label: "10 Projects", threshold: 10 },
+  { icon: "💎", label: "Career Master", threshold: 2000 },
+  { icon: "🎓", label: "Scholar", threshold: 5000 },
 ];
 
 function ProfilePage() {
+  const { user } = useAuth();
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [completedProjects, setCompletedProjects] = useState<CompletedProject[]>([]);
+  const [careersExplored, setCareersExplored] = useState(0);
+
+  useEffect(() => {
+    if (!user) return;
+    const load = async () => {
+      const [profileRes, completedRes] = await Promise.all([
+        supabase.from("profiles").select("*").eq("user_id", user.id).single(),
+        supabase.from("user_projects").select("points_earned, project:projects(title, career)").eq("user_id", user.id),
+      ]);
+
+      if (profileRes.data) setProfile(profileRes.data);
+      if (completedRes.data) {
+        const mapped = completedRes.data.map((r: any) => ({
+          points_earned: r.points_earned,
+          project: r.project,
+        }));
+        setCompletedProjects(mapped);
+        const uniqueCareers = new Set(mapped.filter((p: any) => p.project).map((p: any) => p.project.career));
+        setCareersExplored(uniqueCareers.size);
+      }
+    };
+    load();
+  }, [user]);
+
+  const projectCount = completedProjects.length;
+  const earnedBadges = badges.map((b) => {
+    if (b.label === "First Project") return { ...b, earned: projectCount >= b.threshold };
+    if (b.label === "5-Day Streak") return { ...b, earned: (profile?.streak_days ?? 0) >= b.threshold };
+    if (b.label === "10 Projects") return { ...b, earned: projectCount >= b.threshold };
+    return { ...b, earned: (profile?.total_points ?? 0) >= b.threshold };
+  });
+
+  const initials = profile?.display_name
+    ? profile.display_name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase()
+    : "?";
+
   return (
     <div className="min-h-screen bg-background">
       <Header isLoggedIn />
@@ -44,14 +89,16 @@ function ProfilePage() {
         <div className="bg-gradient-to-br from-lavender/20 via-sky/10 to-lime/10 rounded-3xl border p-8 mb-8">
           <div className="flex flex-col sm:flex-row items-center gap-6">
             <div className="w-20 h-20 rounded-2xl bg-primary flex items-center justify-center text-3xl text-primary-foreground font-bold">
-              A
+              {initials}
             </div>
             <div className="flex-1 text-center sm:text-left">
-              <h1 className="text-2xl font-extrabold">Alex Rivera</h1>
-              <p className="text-muted-foreground text-sm">Sophomore • Lincoln High School</p>
+              <h1 className="text-2xl font-extrabold">{profile?.display_name || "Explorer"}</h1>
+              <p className="text-muted-foreground text-sm">
+                {[profile?.grade, profile?.school].filter(Boolean).join(" • ") || "BridgeLearn Explorer"}
+              </p>
               <div className="flex items-center justify-center sm:justify-start gap-2 mt-2">
-                <PointsBadge points={1250} />
-                <span className="text-xs text-muted-foreground">Level 5 Explorer</span>
+                <PointsBadge points={profile?.total_points ?? 0} />
+                <span className="text-xs text-muted-foreground">Level {profile?.level ?? 1} Explorer</span>
               </div>
             </div>
             <Button variant="outline" size="sm">
@@ -62,17 +109,17 @@ function ProfilePage() {
 
         {/* Stats */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <StatCard label="Total Points" value="1,250" icon={<Star className="w-5 h-5 text-primary" />} color="lavender" />
-          <StatCard label="Projects Done" value={8} icon={<BookOpen className="w-5 h-5 text-coral" />} color="coral" />
-          <StatCard label="Day Streak" value={5} icon={<Flame className="w-5 h-5 text-tangerine-foreground" />} color="tangerine" />
-          <StatCard label="Careers Explored" value={4} icon={<Target className="w-5 h-5 text-sky-foreground" />} color="sky" />
+          <StatCard label="Total Points" value={profile?.total_points?.toLocaleString() ?? "0"} icon={<Star className="w-5 h-5 text-primary" />} color="lavender" />
+          <StatCard label="Projects Done" value={projectCount} icon={<BookOpen className="w-5 h-5 text-coral" />} color="coral" />
+          <StatCard label="Day Streak" value={profile?.streak_days ?? 0} icon={<Flame className="w-5 h-5 text-tangerine-foreground" />} color="tangerine" />
+          <StatCard label="Careers Explored" value={careersExplored} icon={<Target className="w-5 h-5 text-sky-foreground" />} color="sky" />
         </div>
 
         {/* Badges */}
         <section className="mb-8">
           <h2 className="text-xl font-bold mb-4">Badges 🏅</h2>
           <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
-            {badges.map((b) => (
+            {earnedBadges.map((b) => (
               <div key={b.label} className={`flex flex-col items-center gap-2 p-4 rounded-2xl border ${b.earned ? "bg-card shadow-[var(--shadow-card)]" : "bg-muted/50 opacity-50"}`}>
                 <span className="text-2xl">{b.icon}</span>
                 <span className="text-xs font-semibold text-center">{b.label}</span>
@@ -84,17 +131,21 @@ function ProfilePage() {
         {/* Completed projects */}
         <section>
           <h2 className="text-xl font-bold mb-4">Completed Projects ✅</h2>
-          <div className="bg-card rounded-2xl border divide-y">
-            {completedProjects.map((p) => (
-              <div key={p.title} className="flex items-center justify-between px-5 py-3">
-                <div>
-                  <p className="font-semibold text-sm">{p.title}</p>
-                  <p className="text-xs text-muted-foreground">{p.career}</p>
+          {completedProjects.length === 0 ? (
+            <p className="text-muted-foreground text-sm">No projects completed yet. Start exploring!</p>
+          ) : (
+            <div className="bg-card rounded-2xl border divide-y">
+              {completedProjects.map((p, i) => (
+                <div key={i} className="flex items-center justify-between px-5 py-3">
+                  <div>
+                    <p className="font-semibold text-sm">{p.project?.title ?? "Unknown"}</p>
+                    <p className="text-xs text-muted-foreground">{p.project?.career ?? ""}</p>
+                  </div>
+                  <PointsBadge points={p.points_earned} size="sm" />
                 </div>
-                <PointsBadge points={p.points} size="sm" />
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </section>
       </div>
     </div>
