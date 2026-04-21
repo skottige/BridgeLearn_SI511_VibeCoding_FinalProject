@@ -187,6 +187,33 @@ export type Database = {
         }
         Relationships: []
       }
+      user_project_steps: {
+        Row: {
+          action_index: number
+          completed_at: string
+          id: string
+          project_id: string
+          step_index: number
+          user_id: string
+        }
+        Insert: {
+          action_index: number
+          completed_at?: string
+          id?: string
+          project_id: string
+          step_index: number
+          user_id: string
+        }
+        Update: {
+          action_index?: number
+          completed_at?: string
+          id?: string
+          project_id?: string
+          step_index?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_projects: {
         Row: {
           completed_at: string
