@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Header } from "@/components/Header";
 import { ProjectCard } from "@/components/ProjectCard";
+import { ProjectDetailModal } from "@/components/ProjectDetailModal";
 import { useState, useEffect } from "react";
 import { Search } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
@@ -36,6 +37,7 @@ function ProjectsPage() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [completedIds, setCompletedIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
   useEffect(() => {
     const load = async () => {
@@ -71,7 +73,6 @@ function ProjectsPage() {
       return;
     }
 
-    // Update points
     const { data: profile } = await supabase
       .from("profiles")
       .select("total_points")
@@ -155,6 +156,14 @@ function ProjectsPage() {
         {!loading && filtered.length === 0 && (
           <p className="text-center text-muted-foreground py-12">No projects found. Try adjusting your filters.</p>
         )}
+
+        <ProjectDetailModal
+          project={selectedProject}
+          open={!!selectedProject}
+          onOpenChange={(open) => { if (!open) setSelectedProject(null); }}
+          completed={selectedProject ? completedIds.has(selectedProject.id) : false}
+          onComplete={() => { if (selectedProject) handleComplete(selectedProject); }}
+        />
       </div>
     </div>
   );
