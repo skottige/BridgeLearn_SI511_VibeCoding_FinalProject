@@ -57,6 +57,7 @@ function DashboardPage() {
   const [completedCount, setCompletedCount] = useState(0);
   const [rewardsCount, setRewardsCount] = useState(0);
   const [careersExplored, setCareersExplored] = useState(0);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
   useEffect(() => {
     if (!user) return;
