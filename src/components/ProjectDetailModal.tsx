@@ -227,7 +227,7 @@ export function ProjectDetailModal({ project, open, onOpenChange, completed, onC
               <CheckCircle2 className="w-5 h-5" /> You've completed this project!
             </div>
           ) : projectStepsMap[project.title] ? (
-            <Link to="/projects/$projectId" params={{ projectId: project.id }} onClick={() => onOpenChange(false)}>
+            <Link to="/project/$projectId" params={{ projectId: project.id }} onClick={() => onOpenChange(false)}>
               <Button variant="lavender" className="w-full">
                 Start Step-by-Step Guide — Earn {project.points} pts
               </Button>
