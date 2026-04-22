@@ -20,7 +20,7 @@ import {
   Sparkles,
 } from "lucide-react";
 
-export const Route = createFileRoute("/projects/$projectId")({
+export const Route = createFileRoute("/project/$projectId")({
   head: () => ({
     meta: [
       { title: "Project Progress — BridgeLearn" },
