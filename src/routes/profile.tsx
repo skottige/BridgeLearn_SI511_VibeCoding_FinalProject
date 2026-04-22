@@ -103,7 +103,7 @@ function ProfilePage() {
                 {[profile?.grade, profile?.school].filter(Boolean).join(" • ") || "BridgeLearn Explorer"}
               </p>
               <div className="flex items-center justify-center sm:justify-start gap-2 mt-2">
-                <PointsBadge points={(profile?.total_points ?? 0) + redeemedPoints} />
+                <PointsBadge points={profile?.total_points ?? 0} />
                 <span className="text-xs text-muted-foreground">Level {profile?.level ?? 1} Explorer</span>
               </div>
             </div>
