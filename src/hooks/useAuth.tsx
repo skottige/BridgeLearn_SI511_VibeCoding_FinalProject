@@ -13,6 +13,21 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
+async function ensureProfile(user: User) {
+  const displayName = typeof user.user_metadata?.display_name === "string" ? user.user_metadata.display_name : "";
+
+  await supabase.from("profiles").upsert(
+    {
+      user_id: user.id,
+      display_name: displayName,
+    },
+    {
+      onConflict: "user_id",
+      ignoreDuplicates: true,
+    },
+  );
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
@@ -20,12 +35,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        void ensureProfile(session.user);
+      }
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
     });
 
     supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        void ensureProfile(session.user);
+      }
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
@@ -35,7 +56,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signUp = async (email: string, password: string, displayName: string) => {
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -43,6 +64,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         emailRedirectTo: typeof window !== "undefined" ? window.location.origin : undefined,
       },
     });
+
+    if (!error && data.user) {
+      await ensureProfile(data.user);
+    }
+
     return { error: error?.message ?? null };
   };
 
