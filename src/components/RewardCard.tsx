@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Lock, Gift } from "lucide-react";
+import { Lock, Gift, CheckCircle2 } from "lucide-react";
 
 interface RewardCardProps {
   title: string;
