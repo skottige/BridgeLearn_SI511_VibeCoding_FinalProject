@@ -5,7 +5,7 @@ BridgeLearn is a gamified career exploration platform designed to help students 
 ## Live Demo
 
 Access the app here:
-🔗 https://preview--brightway-explorer.lovable.app/
+🔗 https://brightway-explorer.lovable.app
 
 --
 
