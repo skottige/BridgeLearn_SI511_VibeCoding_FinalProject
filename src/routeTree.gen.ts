@@ -18,7 +18,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CareersRouteImport } from './routes/careers'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as ProjectsProjectIdRouteImport } from './routes/projects.$projectId'
+import { Route as ProjectProjectIdRouteImport } from './routes/project.$projectId'
 
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
@@ -65,10 +65,10 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ProjectsProjectIdRoute = ProjectsProjectIdRouteImport.update({
-  id: '/$projectId',
-  path: '/$projectId',
-  getParentRoute: () => ProjectsRoute,
+const ProjectProjectIdRoute = ProjectProjectIdRouteImport.update({
+  id: '/project/$projectId',
+  path: '/project/$projectId',
+  getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -78,10 +78,10 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
   '/profile': typeof ProfileRoute
-  '/projects': typeof ProjectsRouteWithChildren
+  '/projects': typeof ProjectsRoute
   '/rewards': typeof RewardsRoute
   '/signup': typeof SignupRoute
-  '/projects/$projectId': typeof ProjectsProjectIdRoute
+  '/project/$projectId': typeof ProjectProjectIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -90,10 +90,10 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
   '/profile': typeof ProfileRoute
-  '/projects': typeof ProjectsRouteWithChildren
+  '/projects': typeof ProjectsRoute
   '/rewards': typeof RewardsRoute
   '/signup': typeof SignupRoute
-  '/projects/$projectId': typeof ProjectsProjectIdRoute
+  '/project/$projectId': typeof ProjectProjectIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -103,10 +103,10 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
   '/profile': typeof ProfileRoute
-  '/projects': typeof ProjectsRouteWithChildren
+  '/projects': typeof ProjectsRoute
   '/rewards': typeof RewardsRoute
   '/signup': typeof SignupRoute
-  '/projects/$projectId': typeof ProjectsProjectIdRoute
+  '/project/$projectId': typeof ProjectProjectIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -120,7 +120,7 @@ export interface FileRouteTypes {
     | '/projects'
     | '/rewards'
     | '/signup'
-    | '/projects/$projectId'
+    | '/project/$projectId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -132,7 +132,7 @@ export interface FileRouteTypes {
     | '/projects'
     | '/rewards'
     | '/signup'
-    | '/projects/$projectId'
+    | '/project/$projectId'
   id:
     | '__root__'
     | '/'
@@ -144,7 +144,7 @@ export interface FileRouteTypes {
     | '/projects'
     | '/rewards'
     | '/signup'
-    | '/projects/$projectId'
+    | '/project/$projectId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -154,9 +154,10 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   OnboardingRoute: typeof OnboardingRoute
   ProfileRoute: typeof ProfileRoute
-  ProjectsRoute: typeof ProjectsRouteWithChildren
+  ProjectsRoute: typeof ProjectsRoute
   RewardsRoute: typeof RewardsRoute
   SignupRoute: typeof SignupRoute
+  ProjectProjectIdRoute: typeof ProjectProjectIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -224,27 +225,15 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/projects/$projectId': {
-      id: '/projects/$projectId'
-      path: '/$projectId'
-      fullPath: '/projects/$projectId'
-      preLoaderRoute: typeof ProjectsProjectIdRouteImport
-      parentRoute: typeof ProjectsRoute
+    '/project/$projectId': {
+      id: '/project/$projectId'
+      path: '/project/$projectId'
+      fullPath: '/project/$projectId'
+      preLoaderRoute: typeof ProjectProjectIdRouteImport
+      parentRoute: typeof rootRouteImport
     }
   }
 }
-
-interface ProjectsRouteChildren {
-  ProjectsProjectIdRoute: typeof ProjectsProjectIdRoute
-}
-
-const ProjectsRouteChildren: ProjectsRouteChildren = {
-  ProjectsProjectIdRoute: ProjectsProjectIdRoute,
-}
-
-const ProjectsRouteWithChildren = ProjectsRoute._addFileChildren(
-  ProjectsRouteChildren,
-)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -253,9 +242,10 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   OnboardingRoute: OnboardingRoute,
   ProfileRoute: ProfileRoute,
-  ProjectsRoute: ProjectsRouteWithChildren,
+  ProjectsRoute: ProjectsRoute,
   RewardsRoute: RewardsRoute,
   SignupRoute: SignupRoute,
+  ProjectProjectIdRoute: ProjectProjectIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -45,7 +45,7 @@ export function ProjectCard({ id, title, description, points, duration, difficul
           <CheckCircle2 className="w-4 h-4" /> Completed
         </div>
       ) : hasSteps && id ? (
-        <Link to="/projects/$projectId" params={{ projectId: id }} onClick={(e) => e.stopPropagation()}>
+        <Link to="/project/$projectId" params={{ projectId: id }} onClick={(e) => e.stopPropagation()}>
           <Button variant="lavender" size="sm" className="w-full">
             Start Project
           </Button>
