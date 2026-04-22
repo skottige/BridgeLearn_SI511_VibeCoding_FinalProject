@@ -10,6 +10,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { projectStepsMap } from "@/data/projectStepsData";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({
@@ -155,6 +156,7 @@ function DashboardPage() {
             {projects.map((p) => (
               <ProjectCard
                 key={p.id}
+                id={p.id}
                 title={p.title}
                 description={p.description}
                 points={p.points}
@@ -162,7 +164,7 @@ function DashboardPage() {
                 difficulty={p.difficulty as "Beginner" | "Intermediate" | "Advanced"}
                 career={p.career}
                 completed={completedIds.has(p.id)}
-                onStart={() => handleCompleteProject(p.id, p.points)}
+                onStart={projectStepsMap[p.title] ? undefined : () => handleCompleteProject(p.id, p.points)}
                 onClick={() => setSelectedProject(p)}
               />
             ))}
