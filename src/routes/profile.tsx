@@ -43,6 +43,7 @@ const badges = [
 
 function ProfilePage() {
   const { user, signOut } = useAuth();
+  const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [completedProjects, setCompletedProjects] = useState<CompletedProject[]>([]);
   const [careersExplored, setCareersExplored] = useState(0);
