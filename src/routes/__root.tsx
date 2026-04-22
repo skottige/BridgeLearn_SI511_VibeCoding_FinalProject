@@ -34,6 +34,12 @@ export const Route = createRootRoute({
       { name: "author", content: "BridgeLearn" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { property: "og:title", content: "BridgeLearn — Gamified Career Exploration" },
+      { name: "twitter:title", content: "BridgeLearn — Gamified Career Exploration" },
+      { property: "og:description", content: "Discover your dream career through hands-on micro-projects. Free for all students." },
+      { name: "twitter:description", content: "Discover your dream career through hands-on micro-projects. Free for all students." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/c02fe5f2-482b-4124-a651-dab3cb517783/id-preview-b040ce2f--4d71af43-37aa-4e85-bfbe-5feb83f9debd.lovable.app-1776819006434.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/c02fe5f2-482b-4124-a651-dab3cb517783/id-preview-b040ce2f--4d71af43-37aa-4e85-bfbe-5feb83f9debd.lovable.app-1776819006434.png" },
     ],
     links: [
       {
