@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Header } from "@/components/Header";
 import { PointsBadge } from "@/components/PointsBadge";
 import { StatCard } from "@/components/StatCard";
@@ -111,7 +111,7 @@ function ProfilePage() {
               <Button variant="outline" size="sm">
                 <Settings className="w-4 h-4" /> Edit
               </Button>
-              <Button variant="outline" size="sm" onClick={() => signOut()} className="text-destructive hover:text-destructive">
+              <Button variant="outline" size="sm" onClick={async () => { await signOut(); navigate({ to: "/" }); }} className="text-destructive hover:text-destructive">
                 <LogOut className="w-4 h-4" /> Log out
               </Button>
             </div>
