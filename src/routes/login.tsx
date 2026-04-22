@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { ArrowRight, Mail, Lock, Eye, EyeOff, Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-import { lovable } from "@/integrations/lovable";
+
 
 export const Route = createFileRoute("/login")({
   head: () => ({
