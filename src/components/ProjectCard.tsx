@@ -20,7 +20,7 @@ interface ProjectCardProps {
 const diffColors: Record<string, string> = {
   Beginner: "bg-lime/20 text-lime-foreground",
   Intermediate: "bg-tangerine/20 text-tangerine-foreground",
-  Advanced: "bg-coral/20 text-coral-foreground",
+  Advanced: "bg-coral/20 text-foreground",
 };
 
 export function ProjectCard({ id, title, description, points, duration, difficulty, career, completed, onStart, onClick }: ProjectCardProps) {
