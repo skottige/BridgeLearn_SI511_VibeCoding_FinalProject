@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Lock, Gift } from "lucide-react";
+import { Lock, Gift, CheckCircle2 } from "lucide-react";
 
 interface RewardCardProps {
   title: string;
@@ -23,7 +23,11 @@ export function RewardCard({ title, description, cost, icon, unlocked, onClaim }
       <div className="text-xs font-semibold text-sunshine-foreground bg-sunshine/30 px-2.5 py-1 rounded-full mb-3">
         {cost.toLocaleString()} pts
       </div>
-      {unlocked ? (
+      {onClaim === undefined && unlocked ? (
+        <div className="flex items-center gap-1 text-xs font-semibold text-lime-foreground">
+          <CheckCircle2 className="w-3.5 h-3.5" /> Claimed
+        </div>
+      ) : unlocked ? (
         <Button variant="lime" size="sm" className="w-full" onClick={onClaim}>
           <Gift className="w-3 h-3" /> Claim
         </Button>
