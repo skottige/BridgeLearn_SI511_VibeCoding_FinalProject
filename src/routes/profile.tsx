@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Header } from "@/components/Header";
 import { PointsBadge } from "@/components/PointsBadge";
 import { StatCard } from "@/components/StatCard";
-import { Trophy, Flame, Target, BookOpen, Star, Settings } from "lucide-react";
+import { Trophy, Flame, Target, BookOpen, Star, Settings, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -42,17 +42,19 @@ const badges = [
 ];
 
 function ProfilePage() {
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [completedProjects, setCompletedProjects] = useState<CompletedProject[]>([]);
   const [careersExplored, setCareersExplored] = useState(0);
+  const [redeemedPoints, setRedeemedPoints] = useState(0);
 
   useEffect(() => {
     if (!user) return;
     const load = async () => {
-      const [profileRes, completedRes] = await Promise.all([
+      const [profileRes, completedRes, rewardsRes] = await Promise.all([
         supabase.from("profiles").select("*").eq("user_id", user.id).single(),
         supabase.from("user_projects").select("points_earned, project:projects(title, career)").eq("user_id", user.id),
+        supabase.from("user_rewards").select("reward:rewards(cost)").eq("user_id", user.id),
       ]);
 
       if (profileRes.data) setProfile(profileRes.data);
@@ -64,6 +66,10 @@ function ProfilePage() {
         setCompletedProjects(mapped);
         const uniqueCareers = new Set(mapped.filter((p: any) => p.project).map((p: any) => p.project.career));
         setCareersExplored(uniqueCareers.size);
+      }
+      if (rewardsRes.data) {
+        const totalRedeemed = rewardsRes.data.reduce((sum: number, r: any) => sum + (r.reward?.cost ?? 0), 0);
+        setRedeemedPoints(totalRedeemed);
       }
     };
     load();
@@ -97,19 +103,24 @@ function ProfilePage() {
                 {[profile?.grade, profile?.school].filter(Boolean).join(" • ") || "BridgeLearn Explorer"}
               </p>
               <div className="flex items-center justify-center sm:justify-start gap-2 mt-2">
-                <PointsBadge points={profile?.total_points ?? 0} />
+                <PointsBadge points={(profile?.total_points ?? 0) + redeemedPoints} />
                 <span className="text-xs text-muted-foreground">Level {profile?.level ?? 1} Explorer</span>
               </div>
             </div>
-            <Button variant="outline" size="sm">
-              <Settings className="w-4 h-4" /> Edit
-            </Button>
+            <div className="flex flex-col gap-2">
+              <Button variant="outline" size="sm">
+                <Settings className="w-4 h-4" /> Edit
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => signOut()} className="text-destructive hover:text-destructive">
+                <LogOut className="w-4 h-4" /> Log out
+              </Button>
+            </div>
           </div>
         </div>
 
         {/* Stats */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <StatCard label="Total Points" value={profile?.total_points?.toLocaleString() ?? "0"} icon={<Star className="w-5 h-5 text-primary" />} color="lavender" />
+          <StatCard label="Total Points" value={((profile?.total_points ?? 0) + redeemedPoints).toLocaleString()} icon={<Star className="w-5 h-5 text-primary" />} color="lavender" />
           <StatCard label="Projects Done" value={projectCount} icon={<BookOpen className="w-5 h-5 text-coral" />} color="coral" />
           <StatCard label="Day Streak" value={profile?.streak_days ?? 0} icon={<Flame className="w-5 h-5 text-tangerine-foreground" />} color="tangerine" />
           <StatCard label="Careers Explored" value={careersExplored} icon={<Target className="w-5 h-5 text-sky-foreground" />} color="sky" />
